@@ -1,0 +1,53 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:l="sap.ui.layout.form"
+  xmlns:core="sap.ui.core">
+  <Dialog
+    title="{= ${dlg>/id} ? 'Edit Tile' : 'New Tile' }"
+    contentWidth="36rem">
+    <l:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanM="3" columnsM="1" singleContainerFullSize="false" class="sapUiContentPadding">
+      <Label text="URL" required="true" />
+      <HBox width="100%">
+        <Input value="{dlg>/url}" placeholder="https://…" width="100%" />
+        <Button id="fetchBtn" icon="sap-icon://download" text="{i18n>fetchPreview}" press=".onFetchPreview" />
+      </HBox>
+
+      <Label text="Page" required="true" />
+      <Select selectedKey="{dlg>/page_id}" items="{ctx>/pages}" forceSelection="false" width="100%">
+        <core:Item key="{ctx>id}" text="{ctx>name}" />
+      </Select>
+
+      <Label text="Title" required="true" />
+      <Input value="{dlg>/title}" />
+
+      <Label text="Subtitle" />
+      <Input value="{dlg>/subtitle}" />
+
+      <Label text="Description" />
+      <TextArea value="{dlg>/description}" rows="3" width="100%" />
+
+      <Label text="Type" />
+      <Select selectedKey="{dlg>/type}" width="100%">
+        <core:Item key="sap-blog" text="SAP Blog" />
+        <core:Item key="learning-hub" text="Learning Hub" />
+        <core:Item key="github" text="GitHub" />
+        <core:Item key="youtube" text="YouTube" />
+        <core:Item key="sap-help" text="SAP Help" />
+        <core:Item key="other" text="Link" />
+      </Select>
+
+      <Label text="Image URL" />
+      <Input value="{dlg>/image_url}" placeholder="auto-filled by preview" />
+
+      <Label text="Preview" />
+      <Image src="{ parts: ['dlg>/image_url', 'dlg>/favicon_url'], formatter: '.formatter.previewSrc' }"
+        height="6rem" class="favDialogPreview" densityAware="false" />
+    </l:SimpleForm>
+    <beginButton>
+      <Button text="{i18n>save}" type="Emphasized" press=".onSaveDialog" />
+    </beginButton>
+    <endButton>
+      <Button text="{i18n>cancel}" press=".onCancelDialog" />
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

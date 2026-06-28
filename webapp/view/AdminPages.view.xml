@@ -1,0 +1,40 @@
+<mvc:View
+  controllerName="sap.favorites.controller.AdminPages"
+  xmlns="sap.m"
+  xmlns:mvc="sap.ui.core.mvc">
+
+  <VBox class="favAdminPane">
+    <Toolbar>
+      <Title text="{i18n>tabPages}" level="H2" />
+      <ToolbarSpacer />
+      <Button icon="sap-icon://add" text="{i18n>add}" type="Emphasized" press=".onAdd" />
+    </Toolbar>
+
+    <Table id="pagesTable" items="{/pages}" mode="None" growing="true">
+      <columns>
+        <Column width="3rem"><Text text="" /></Column>
+        <Column><Text text="Name" /></Column>
+        <Column><Text text="Icon" /></Column>
+        <Column hAlign="Center"><Text text="Tiles" /></Column>
+        <Column hAlign="End"><Text text="" /></Column>
+      </columns>
+      <items>
+        <ColumnListItem>
+          <cells>
+            <HBox>
+              <Button icon="sap-icon://slim-arrow-up" type="Transparent" press=".onMoveUp" tooltip="Move up" />
+              <Button icon="sap-icon://slim-arrow-down" type="Transparent" press=".onMoveDown" tooltip="Move down" />
+            </HBox>
+            <Text text="{name}" />
+            <Text text="{icon}" />
+            <ObjectNumber number="{tile_count}" />
+            <HBox justifyContent="End">
+              <Button icon="sap-icon://edit" type="Transparent" press=".onEdit" tooltip="{i18n>edit}" />
+              <Button icon="sap-icon://delete" type="Transparent" press=".onDelete" tooltip="{i18n>delete}" />
+            </HBox>
+          </cells>
+        </ColumnListItem>
+      </items>
+    </Table>
+  </VBox>
+</mvc:View>

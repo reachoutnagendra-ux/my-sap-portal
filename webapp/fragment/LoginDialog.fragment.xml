@@ -1,0 +1,24 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+  <Dialog
+    id="loginDialog"
+    title="{i18n>login}"
+    contentWidth="22rem">
+    <VBox class="sapUiContentPadding">
+      <Label text="{i18n>enterPin}" labelFor="pinInput" />
+      <Input
+        id="pinInput"
+        type="Password"
+        placeholder="{i18n>pin}"
+        submit=".onSubmitLogin"
+        width="100%" />
+    </VBox>
+    <beginButton>
+      <Button text="{i18n>login}" type="Emphasized" press=".onSubmitLogin" />
+    </beginButton>
+    <endButton>
+      <Button text="{i18n>cancel}" press=".onCancelLogin" />
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

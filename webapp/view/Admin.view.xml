@@ -1,0 +1,39 @@
+<mvc:View
+  controllerName="sap.favorites.controller.Admin"
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:mvc="sap.ui.core.mvc">
+
+  <Page id="adminPage" title="{i18n>adminTitle}" showNavButton="true" navButtonPress=".onBack">
+    <headerContent>
+      <ObjectStatus
+        text="AI: {app>/aiAdapter}"
+        state="Information"
+        visible="{= !!${app>/aiAdapter} }" />
+      <Button icon="sap-icon://home" text="{i18n>home}" type="Transparent" press=".onBack" />
+      <Button icon="sap-icon://log" text="{i18n>logout}" type="Transparent" press=".onLogout" />
+    </headerContent>
+
+    <IconTabBar id="adminTabs" expandable="false" class="favAdminTabs">
+      <items>
+        <IconTabFilter key="pages" text="{i18n>tabPages}" icon="sap-icon://documents">
+          <mvc:XMLView viewName="sap.favorites.view.AdminPages" />
+        </IconTabFilter>
+        <IconTabFilter key="tiles" text="{i18n>tabTiles}" icon="sap-icon://grid">
+          <mvc:XMLView viewName="sap.favorites.view.AdminTiles" />
+        </IconTabFilter>
+        <IconTabFilter key="feeds" text="{i18n>tabFeeds}" icon="sap-icon://feed">
+          <mvc:XMLView viewName="sap.favorites.view.AdminFeeds" />
+        </IconTabFilter>
+        <IconTabFilter
+          id="suggestionsTab"
+          key="suggestions"
+          text="{i18n>tabSuggestions}"
+          icon="sap-icon://inbox"
+          count="{app>/pendingCount}">
+          <mvc:XMLView viewName="sap.favorites.view.AdminSuggestions" />
+        </IconTabFilter>
+      </items>
+    </IconTabBar>
+  </Page>
+</mvc:View>

@@ -1,0 +1,21 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:l="sap.ui.layout.form"
+  xmlns:core="sap.ui.core">
+  <Dialog
+    title="{= ${dlg>/id} ? 'Edit Page' : 'New Page' }"
+    contentWidth="28rem">
+    <l:SimpleForm editable="true" layout="ColumnLayout" class="sapUiContentPadding">
+      <Label text="Name" required="true" />
+      <Input value="{dlg>/name}" placeholder="e.g. ABAP" />
+      <Label text="Icon" />
+      <Input value="{dlg>/icon}" placeholder="sap-icon://folder or an emoji" />
+    </l:SimpleForm>
+    <beginButton>
+      <Button text="{i18n>save}" type="Emphasized" press=".onSaveDialog" />
+    </beginButton>
+    <endButton>
+      <Button text="{i18n>cancel}" press=".onCancelDialog" />
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

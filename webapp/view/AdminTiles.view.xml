@@ -1,0 +1,59 @@
+<mvc:View
+  controllerName="sap.favorites.controller.AdminTiles"
+  xmlns="sap.m"
+  xmlns:mvc="sap.ui.core.mvc">
+
+  <VBox class="favAdminPane">
+    <Toolbar>
+      <Title text="{i18n>tabTiles}" level="H2" />
+      <ToolbarSpacer />
+      <Label text="Page:" class="sapUiTinyMarginEnd" />
+      <Select id="pageFilter" items="{/pages}" change=".onSelectPage" forceSelection="false">
+        <core:Item xmlns:core="sap.ui.core" key="{id}" text="{name}" />
+      </Select>
+      <Button icon="sap-icon://download" text="Export" type="Transparent" press=".onExport" />
+      <Button icon="sap-icon://upload" text="Import" type="Transparent" press=".onImport" />
+      <Button icon="sap-icon://add" text="{i18n>add}" type="Emphasized" press=".onAdd" />
+    </Toolbar>
+
+    <Table id="tilesTable" items="{/tiles}" mode="None" growing="true" growingThreshold="50">
+      <columns>
+        <Column width="3rem"><Text text="" /></Column>
+        <Column width="4rem"><Text text="" /></Column>
+        <Column><Text text="Title" /></Column>
+        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="URL" /></Column>
+        <Column hAlign="Center"><Text text="Type" /></Column>
+        <Column hAlign="End"><Text text="" /></Column>
+      </columns>
+      <items>
+        <ColumnListItem>
+          <cells>
+            <HBox>
+              <Button icon="sap-icon://slim-arrow-up" type="Transparent" press=".onMoveUp" tooltip="Move up" />
+              <Button icon="sap-icon://slim-arrow-down" type="Transparent" press=".onMoveDown" tooltip="Move down" />
+            </HBox>
+            <Image
+              src="{ parts: ['image_url', 'favicon_url'], formatter: '.formatter.previewSrc' }"
+              width="2.5rem" height="2.5rem" class="favThumb" densityAware="false" />
+            <VBox>
+              <Text text="{title}" />
+              <Text text="{subtitle}" class="favMuted" />
+            </VBox>
+            <Link text="{url}" href="{url}" target="_blank" wrapping="false" />
+            <Label text="{ path: 'type', formatter: '.formatter.typeLabel' }" class="favBadge">
+              <customData>
+                <core:CustomData xmlns:core="sap.ui.core" key="badgeType" value="{type}" writeToDom="true" />
+              </customData>
+            </Label>
+            <HBox justifyContent="End">
+              <Button icon="sap-icon://edit" type="Transparent" press=".onEdit" tooltip="{i18n>edit}" />
+              <Button icon="sap-icon://delete" type="Transparent" press=".onDelete" tooltip="{i18n>delete}" />
+            </HBox>
+          </cells>
+        </ColumnListItem>
+      </items>
+    </Table>
+
+    <core:HTML xmlns:core="sap.ui.core" content="&lt;input type='file' id='favImportFile' accept='application/json' style='display:none' /&gt;" />
+  </VBox>
+</mvc:View>

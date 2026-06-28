@@ -1,0 +1,46 @@
+<mvc:View
+  controllerName="sap.favorites.controller.AdminFeeds"
+  xmlns="sap.m"
+  xmlns:mvc="sap.ui.core.mvc">
+
+  <VBox class="favAdminPane">
+    <Toolbar>
+      <Title text="{i18n>tabFeeds}" level="H2" />
+      <ToolbarSpacer />
+      <Button icon="sap-icon://add" text="{i18n>add}" type="Emphasized" press=".onAdd" />
+    </Toolbar>
+
+    <MessageStrip
+      text="Feed sources are scraped on schedule (daily/weekly) and proposed in the Suggestions inbox. The active AI adapter enriches results; with the default noop adapter, raw items are proposed."
+      type="Information"
+      showIcon="true"
+      class="sapUiSmallMarginBottom" />
+
+    <Table id="feedsTable" items="{/feeds}" mode="None" growing="true">
+      <columns>
+        <Column><Text text="Name" /></Column>
+        <Column><Text text="Type" /></Column>
+        <Column minScreenWidth="Tablet" demandPopin="true"><Text text="Identifier" /></Column>
+        <Column hAlign="Center"><Text text="Frequency" /></Column>
+        <Column hAlign="Center"><Text text="Enabled" /></Column>
+        <Column hAlign="End"><Text text="" /></Column>
+      </columns>
+      <items>
+        <ColumnListItem>
+          <cells>
+            <Text text="{name}" />
+            <Text text="{type}" />
+            <Text text="{identifier}" />
+            <Text text="{frequency}" />
+            <Switch state="{enabled}" change=".onToggleEnabled" />
+            <HBox justifyContent="End">
+              <Button icon="sap-icon://refresh" text="{i18n>scrapeNow}" type="Transparent" press=".onScrape" />
+              <Button icon="sap-icon://edit" type="Transparent" press=".onEdit" tooltip="{i18n>edit}" />
+              <Button icon="sap-icon://delete" type="Transparent" press=".onDelete" tooltip="{i18n>delete}" />
+            </HBox>
+          </cells>
+        </ColumnListItem>
+      </items>
+    </Table>
+  </VBox>
+</mvc:View>

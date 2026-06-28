@@ -1,0 +1,107 @@
+<mvc:View
+  controllerName="sap.favorites.controller.Home"
+  xmlns="sap.m"
+  xmlns:f="sap.f"
+  xmlns:core="sap.ui.core"
+  xmlns:mvc="sap.ui.core.mvc">
+
+  <Page id="homePage" showHeader="true" backgroundDesign="List">
+    <customHeader>
+      <Bar class="favHeader">
+        <contentLeft>
+          <core:Icon src="sap-icon://SAP-logo-shape" class="favLogo" />
+          <Title text="{app>/siteTitle}" level="H1" class="favTitle" />
+        </contentLeft>
+        <contentMiddle>
+          <SearchField
+            id="searchField"
+            width="22rem"
+            placeholder="{i18n>search}"
+            search=".onSearch"
+            liveChange=".onSearch" />
+        </contentMiddle>
+        <contentRight>
+          <Button
+            icon="sap-icon://settings"
+            tooltip="{i18n>admin}"
+            type="Transparent"
+            press=".onOpenAdmin" />
+        </contentRight>
+      </Bar>
+    </customHeader>
+
+    <IconTabBar
+      id="pagesTabBar"
+      class="favTabBar"
+      select=".onSelectPage"
+      expandable="false"
+      backgroundDesign="Transparent"
+      headerBackgroundDesign="Transparent"
+      items="{
+        path: '/pages',
+        templateShareable: false
+      }">
+      <items>
+        <IconTabFilter
+          key="{id}"
+          text="{name}"
+          design="Horizontal"
+          icon="{= ${icon} ? (${icon}.indexOf('sap-icon') === 0 ? ${icon} : '') : '' }"
+          count="{tile_count}" />
+      </items>
+      <content>
+        <f:GridContainer
+          id="tileGrid"
+          snapToRow="true"
+          class="favGrid"
+          items="{
+            path: '/visibleTiles',
+            templateShareable: false
+          }">
+          <f:layout>
+            <f:GridContainerSettings rowSize="13rem" columnSize="20rem" gap="1rem" />
+          </f:layout>
+          <f:layoutS>
+            <f:GridContainerSettings rowSize="13rem" columnSize="100%" gap="0.75rem" />
+          </f:layoutS>
+
+          <f:items>
+            <VBox class="favTile" justifyContent="Start">
+              <layoutData>
+                <f:GridContainerItemLayoutData columns="1" rows="1" />
+              </layoutData>
+              <!-- preview band -->
+              <Image
+                src="{ parts: ['image_url', 'favicon_url'], formatter: '.formatter.previewSrc' }"
+                visible="{ parts: ['image_url', 'favicon_url'], formatter: '.formatter.hasImage' }"
+                class="favTileImg"
+                densityAware="false" />
+              <VBox class="favTileBody">
+                <Title text="{title}" level="H3" class="favTileTitle" wrapping="false" />
+                <Text text="{subtitle}" class="favTileSub" maxLines="1" />
+                <Text text="{description}" class="favTileDesc" maxLines="2" />
+                <HBox class="favTileFooter" alignItems="Center" wrap="Wrap">
+                  <Label text="{ path: 'type', formatter: '.formatter.typeLabel' }" class="favBadge">
+                    <customData>
+                      <core:CustomData key="badgeType" value="{type}" writeToDom="true" />
+                    </customData>
+                  </Label>
+                  <Text
+                    text="{ path: 'ai_tags', formatter: '.formatter.tagsText' }"
+                    class="favTileTags" />
+                </HBox>
+              </VBox>
+            </VBox>
+          </f:items>
+        </f:GridContainer>
+
+        <IllustratedMessage
+          id="emptyState"
+          visible="{= ${/visibleTiles}.length === 0 }"
+          illustrationType="sapIllus-NoData"
+          title="{i18n>emptyTitle}"
+          description="{i18n>emptyText}" />
+      </content>
+    </IconTabBar>
+  </Page>
+</mvc:View>

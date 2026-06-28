@@ -1,0 +1,44 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:l="sap.ui.layout.form"
+  xmlns:core="sap.ui.core">
+  <Dialog
+    title="{= ${dlg>/id} ? 'Edit Feed Source' : 'New Feed Source' }"
+    contentWidth="34rem">
+    <l:SimpleForm editable="true" layout="ColumnLayout" columnsM="1" class="sapUiContentPadding">
+      <Label text="Name" required="true" />
+      <Input value="{dlg>/name}" placeholder="e.g. SAP Developers YouTube" />
+
+      <Label text="Type" />
+      <Select selectedKey="{dlg>/type}" width="100%">
+        <core:Item key="youtube-channel" text="YouTube channel" />
+        <core:Item key="sap-blog-tag" text="SAP Blog tag" />
+        <core:Item key="github-topic" text="GitHub topic" />
+        <core:Item key="rss" text="RSS feed" />
+      </Select>
+
+      <Label text="Identifier" required="true" />
+      <Input value="{dlg>/identifier}" placeholder="channel id / tag / topic / RSS URL" />
+
+      <Label text="Target page" />
+      <Select selectedKey="{dlg>/target_page}" items="{ctx>/pages}" forceSelection="false" width="100%">
+        <core:Item key="{ctx>id}" text="{ctx>name}" />
+      </Select>
+
+      <Label text="Frequency" />
+      <Select selectedKey="{dlg>/frequency}" width="100%">
+        <core:Item key="daily" text="Daily" />
+        <core:Item key="weekly" text="Weekly" />
+      </Select>
+
+      <Label text="Enabled" />
+      <Switch state="{dlg>/enabled}" />
+    </l:SimpleForm>
+    <beginButton>
+      <Button text="{i18n>save}" type="Emphasized" press=".onSaveDialog" />
+    </beginButton>
+    <endButton>
+      <Button text="{i18n>cancel}" press=".onCancelDialog" />
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

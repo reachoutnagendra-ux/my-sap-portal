@@ -1,0 +1,32 @@
+{
+  "name": "favorites-portal",
+  "version": "2.0.0",
+  "description": "SAP Favorites Portal — a personal Fiori Launchpad-style favorites dashboard",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "migrate": "node server/migrate.js",
+    "seed": "node server/seed.js",
+    "export": "node server/export.js",
+    "lint": "eslint server"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "nodemon": "^3.1.4"
+  }
+}

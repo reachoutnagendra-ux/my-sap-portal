@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My SAP Portal</title>
+
+    <script
+      id="sap-ui-bootstrap"
+      src="https://sdk.openui5.org/resources/sap-ui-core.js"
+      data-sap-ui-theme="sap_horizon_dark"
+      data-sap-ui-resourceroots='{ "sap.favorites": "./" }'
+      data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+      data-sap-ui-compatversion="edge"
+      data-sap-ui-async="true"
+      data-sap-ui-frameoptions="trusted"
+      data-sap-ui-libs="sap.m,sap.f,sap.ui.layout"
+    ></script>
+
+    <link rel="stylesheet" href="./css/custom.css" />
+  </head>
+  <body class="sapUiBody sapFavoritesBody">
+    <div
+      data-sap-ui-component
+      data-name="sap.favorites"
+      data-id="container"
+      data-settings='{"id": "favorites"}'
+      style="height: 100%"
+    ></div>
+  </body>
+</html>

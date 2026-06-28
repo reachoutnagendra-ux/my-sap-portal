@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: favorites
+      POSTGRES_PASSWORD: favorites
+      POSTGRES_DB: favorites
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U favorites"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      DATABASE_URL: postgresql://favorites:favorites@postgres:5432/favorites
+      JWT_SECRET: change-me-to-a-long-random-string
+      ADMIN_PIN: "1234"
+      AI_ADAPTER: noop
+    ports:
+      - "3000:3000"
+    command: sh -c "npm run migrate && npm run seed && npm start"
+
+volumes:
+  pgdata:
