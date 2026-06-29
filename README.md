@@ -10,6 +10,8 @@ GitHub, and YouTube — but it works just as well for any link collection.
 
 **Stack:** OpenUI5 (CDN) · Node.js / Express · PostgreSQL · pluggable AI layer
 **Theme:** `sap_horizon_dark`
+<img width="2906" height="1584" alt="image" src="https://github.com/user-attachments/assets/9535274d-6bf9-438e-85fe-f65451d8c4d0" />
+
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)
