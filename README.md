@@ -12,9 +12,14 @@ GitHub, and YouTube — but it works just as well for any link collection.
 **Theme:** `sap_horizon_dark`
 <img width="2906" height="1584" alt="image" src="https://github.com/user-attachments/assets/9535274d-6bf9-438e-85fe-f65451d8c4d0" />
 
+**Schedule your content.**
+
 <img width="2834" height="1050" alt="image" src="https://github.com/user-attachments/assets/05175c26-9a48-4d3c-93d2-a9575322275b" />
+
+
 **
 Approve the content to add them to your board.**
+
 
 <img width="2874" height="1136" alt="image" src="https://github.com/user-attachments/assets/87ebdec0-5ecb-4b0e-b706-f94e05e40ad1" />
 
