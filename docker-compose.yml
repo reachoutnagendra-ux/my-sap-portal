@@ -29,6 +29,7 @@ services:
       JWT_SECRET: change-me-to-a-long-random-string
       ADMIN_PIN: "1234"
       AI_ADAPTER: noop
+      CORS_ORIGIN: http://localhost:3000
     ports:
       - "3000:3000"
     command: sh -c "npm run migrate && npm run seed && npm start"

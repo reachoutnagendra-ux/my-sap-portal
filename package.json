@@ -1,9 +1,29 @@
 {
-  "name": "favorites-portal",
+  "name": "sap-favorites-portal",
   "version": "2.0.0",
-  "description": "SAP Favorites Portal — a personal Fiori Launchpad-style favorites dashboard",
+  "description": "SAP Favorites Portal — a self-hosted, Fiori Launchpad-style favorites dashboard. Stop drowning in bookmarks.",
   "main": "server/index.js",
   "type": "commonjs",
+  "license": "MIT",
+  "author": "Nagendra Hitaishi",
+  "homepage": "https://github.com/abapforgeeks/my-sap-portal#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abapforgeeks/my-sap-portal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abapforgeeks/my-sap-portal/issues"
+  },
+  "keywords": [
+    "sap",
+    "openui5",
+    "fiori",
+    "launchpad",
+    "bookmarks",
+    "favorites",
+    "dashboard",
+    "self-hosted"
+  ],
   "engines": {
     "node": ">=20"
   },
@@ -22,7 +42,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.5.0",
     "pg": "^8.12.0"
   },
   "devDependencies": {

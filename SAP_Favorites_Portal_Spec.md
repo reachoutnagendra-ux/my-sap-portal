@@ -1,9 +1,29 @@
 # SAP Favorites Portal — Product Specification
 
 **Version:** 2.0  
+**Status:** Implemented — Phases 1–6 scaffolded and working (AI adapters wired but default `noop`)  
 **Stack:** OpenUI5 · Node.js (Express) · PostgreSQL · AI-ready  
 **Theme:** SAP Horizon Dark  
 **Hosting:** Local-first → Azure App Service / Railway / Render / GitHub Pages (static viewer)
+
+> **Spec note:** This document reflects the current state of the codebase. Where the
+> running implementation differs from the original v2.0 design, the spec has been
+> updated to match the code (auth hardening, SSRF protection, custom migration runner,
+> i18n, formatter, and dependency choices).
+
+> ### 🛠️ Use this spec to build your own
+> This spec is intentionally self-contained so you can **hand it to an AI coding agent**
+> (Claude Code, Cursor, etc.) and have it scaffold the whole app — or your own variant.
+>
+> - **Same stack:** "Build the app described in this spec." Then run it (see the README).
+> - **Different stack:** keep §2–§5, §7, §10–§13 (concepts, data model, API, env, NFRs)
+>   and rewrite §6 (frontend) and §8 (tech stack) for React/Vue/Svelte, Supabase/SQLite,
+>   etc. The **data model and REST contract are the stable core** — everything else is
+>   swappable.
+> - **Extend it:** the AI adapter interface (§3.4) and feed sources (§3.2) are designed as
+>   clean extension points.
+>
+> MIT-licensed — fork it, ship it, make it yours.
 
 ---
 
@@ -73,6 +93,9 @@ The architecture is designed for three horizons:
 
 ### 3.3 Preview Fetcher Service
 - Endpoint: `GET /api/preview?url=<url>`
+- **SSRF protection:** the target hostname is resolved and rejected if it points at
+  `localhost`, `*.local`, or any private/loopback/link-local IP range (IPv4 + IPv6).
+  Fails closed on DNS errors.
 - Strategy per source type:
   - **YouTube:** extract video ID → `https://img.youtube.com/vi/{id}/mqdefault.jpg`, pull title via YouTube Data API v3 (API key optional, OG fallback)
   - **GitHub:** extract `owner/repo` → GitHub REST API for description + social preview image
@@ -178,8 +201,11 @@ CREATE TABLE suggestions (
   ai_summary   TEXT,
   ai_tags      TEXT[],
   status       TEXT CHECK(status IN ('pending','approved','rejected')) DEFAULT 'pending',
+  published_at TIMESTAMPTZ,        -- original publish date of the scraped item (003)
   created_at   TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX idx_suggestions_status ON suggestions(status);
+CREATE INDEX idx_suggestions_published_at ON suggestions(published_at DESC);
 
 -- App settings (admin PIN hash, site title, active AI adapter, etc.)
 CREATE TABLE settings (
@@ -214,9 +240,10 @@ CREATE TABLE settings (
 ### Utilities
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | `/api/preview` | Fetch URL preview metadata |
-| GET | `/api/export` | Export full DB as JSON |
-| POST | `/api/import` | Import JSON (merge or replace) |
+| GET | `/api/health` | Health check — returns DB connectivity status |
+| GET | `/api/preview` | Fetch URL preview metadata (SSRF-guarded) |
+| GET | `/api/export` | Export full DB as JSON *(auth required)* |
+| POST | `/api/import` | Import JSON (merge or replace) *(auth required)* |
 
 ### Feed Sources & AI
 | Method | Route | Description |
@@ -233,10 +260,18 @@ CREATE TABLE settings (
 ### Auth
 | Method | Route | Description |
 |--------|-------|-------------|
-| POST | `/api/auth/login` | Verify PIN → return JWT |
-| POST | `/api/auth/change-pin` | Change admin PIN |
+| POST | `/api/auth/login` | Verify PIN → return JWT (12h TTL). IP rate-limited: 10 attempts / 15 min |
+| POST | `/api/auth/change-pin` | Change admin PIN (auth required; verifies current PIN) |
 
-All write endpoints require `Authorization: Bearer <jwt>` header.
+**Authorization model:**
+- All write endpoints require `Authorization: Bearer <jwt>`.
+- The admin-only read endpoints (`/api/feeds`, `/api/suggestions`, `/api/export`)
+  also require auth — they expose management data, not public content.
+- Public read endpoints (`/api/pages`, `/api/tiles`, `/api/pages/:id/tiles`,
+  `/api/preview`, `/api/health`) are unauthenticated.
+- JWTs are stateless and carry `role: 'admin'`. The admin PIN is stored as a
+  bcrypt hash in the `settings` table (`admin_pin_hash`), seeded from `ADMIN_PIN`
+  on first run. Production refuses default `JWT_SECRET` / `ADMIN_PIN` values.
 
 ---
 
@@ -270,7 +305,10 @@ webapp/
 │   ├── FeedDialog.fragment.xml
 │   └── LoginDialog.fragment.xml
 ├── model/
-│   └── models.js                ← JSONModel, API fetch helpers
+│   ├── models.js                ← JSONModel, API fetch helpers
+│   └── formatter.js             ← Type-badge colour/label + text formatters
+├── i18n/
+│   └── i18n.properties          ← UI text resource bundle
 └── css/
     └── custom.css               ← Tile hover glow, badge colours, overrides
 ```
@@ -323,10 +361,11 @@ webapp/
 | Theme | `sap_horizon_dark` | Via OpenUI5 theming |
 | Backend | Node.js 20 LTS + Express 4 | |
 | Database | PostgreSQL 16 | Local: Docker · Cloud: Supabase / Azure DB / Railway |
-| ORM / Query | `pg` (node-postgres) + raw SQL | Migrations via `node-pg-migrate` |
-| Preview scraping | `node-fetch` + `cheerio` | |
-| Scheduler | `node-cron` | Feed scraping jobs |
-| Auth | `jsonwebtoken` + `bcrypt` | Stateless JWT, PIN-based |
+| ORM / Query | `pg` (node-postgres) + raw SQL | Custom migration runner (`server/migrate.js`, `schema_migrations` table) |
+| Preview scraping | Native `fetch` (Node 20) + `cheerio` | No `node-fetch` dependency |
+| Scheduler | `node-cron` (v4) | Feed scraping jobs (daily 06:00, weekly Mon 06:00) |
+| CORS | `cors` | Allowlist via `CORS_ORIGIN` env var |
+| Auth | `jsonwebtoken` + `bcryptjs` | Stateless JWT (12h), bcrypt PIN hash, login rate-limiting |
 | AI Adapter | Provider-agnostic interface | Default: noop stub; swap via `AI_ADAPTER` env var |
 | Dev tooling | `nodemon` · `dotenv` · `eslint` | |
 | Containerisation | Docker + `docker-compose.yml` | PostgreSQL + app in compose for local dev |
@@ -349,9 +388,12 @@ favorites-portal/
 ├── README.md
 │
 ├── server/
-│   ├── index.js                 ← Express entry point
-│   ├── db.js                    ← pg pool, migration runner
-│   ├── auth.js                  ← JWT helpers
+│   ├── index.js                 ← Express entry point (health, CORS, routes, SPA fallback)
+│   ├── db.js                    ← pg pool + query helper
+│   ├── migrate.js               ← Migration runner (tracks via schema_migrations)
+│   ├── seed.js                  ← Seed example pages + tiles, set admin PIN hash
+│   ├── export.js                ← Static-viewer JSON export (docs/)
+│   ├── auth.js                  ← JWT + bcrypt PIN helpers, requireAuth middleware
 │   ├── scheduler.js             ← node-cron feed jobs
 │   │
 │   ├── routes/
@@ -375,8 +417,9 @@ favorites-portal/
 │   │           └── ollama.js    ← Local LLM
 │   │
 │   └── migrations/
-│       ├── 001_initial.sql
-│       └── 002_ai_tables.sql
+│       ├── 001_initial.sql              ← pages, tiles, settings
+│       ├── 002_ai_tables.sql            ← feed_sources, suggestions
+│       └── 003_suggestion_published.sql ← suggestions.published_at + index
 │
 └── webapp/                      ← OpenUI5 frontend (see §6)
     └── ...
@@ -397,6 +440,10 @@ DATABASE_URL=postgresql://user:password@localhost:5432/favorites
 # Auth
 JWT_SECRET=change-me-to-a-long-random-string
 ADMIN_PIN=1234
+
+# CORS allowlist (comma-separated origins). Empty = same-origin only.
+# Example: CORS_ORIGIN=http://localhost:8080,https://portal.example.com
+CORS_ORIGIN=
 
 # Preview fetching (optional, improves quality)
 YOUTUBE_API_KEY=
@@ -421,9 +468,13 @@ OLLAMA_MODEL=llama3
 docker-compose up        # starts postgres + app
 # OR
 npm install
-npm run migrate
+npm run migrate          # apply pending SQL migrations
+npm run seed             # optional: example pages/tiles + admin PIN hash
 npm run dev              # nodemon
 ```
+
+Other scripts: `npm start` (production), `npm run export` (static viewer JSON),
+`npm run lint` (eslint).
 
 ### Azure App Service
 1. Create Azure App Service (Node 20 LTS, Linux)
@@ -471,6 +522,11 @@ npm run dev              # nodemon
 
 ## 14. Development Phases
 
+> **Current state:** Phases 1–6 are scaffolded and functional. The four AI adapters
+> (`noop`, `openai`, `anthropic`, `ollama`) are present and wired through the
+> provider-agnostic `aiService` interface; `noop` is the default, so AI features are
+> inert until an adapter + API key is configured.
+
 ### Phase 1 — Foundation
 - Repo scaffold with `docker-compose.yml` (app + postgres)
 - DB schema + migrations (`node-pg-migrate`)
@@ -510,4 +566,4 @@ npm run dev              # nodemon
 
 ---
 
-*Generated: June 2026*
+*Generated: June 2026 · Last synced with codebase: 2026-06-29*

@@ -11,7 +11,26 @@ const { startScheduler } = require('./scheduler');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+const allowedOrigins = String(process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin(origin, cb) {
+    // Non-browser clients (curl/postman) often have no Origin header.
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.length === 0) {
+      return cb(new Error('CORS blocked: CORS_ORIGIN is not configured'));
+    }
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error('CORS blocked: origin not allowed'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+};
+
+app.disable('x-powered-by');
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
 // --- Health check ---
@@ -26,6 +45,7 @@ app.get('/api/health', async (req, res) => {
 
 // --- API routes ---
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/profile', require('./routes/profile'));
 app.use('/api/pages', require('./routes/pages'));
 app.use('/api', require('./routes/tiles')); // /api/tiles, /api/pages/:id/tiles, /api/tiles/reorder
 app.use('/api/preview', require('./routes/preview'));

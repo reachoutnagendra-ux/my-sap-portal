@@ -7,27 +7,43 @@
 
   <Page id="homePage" showHeader="true" backgroundDesign="List">
     <customHeader>
-      <Bar class="favHeader">
-        <contentLeft>
-          <core:Icon src="sap-icon://SAP-logo-shape" class="favLogo" />
-          <Title text="{app>/siteTitle}" level="H1" class="favTitle" />
-        </contentLeft>
-        <contentMiddle>
-          <SearchField
-            id="searchField"
-            width="22rem"
-            placeholder="{i18n>search}"
-            search=".onSearch"
-            liveChange=".onSearch" />
-        </contentMiddle>
-        <contentRight>
-          <Button
-            icon="sap-icon://settings"
-            tooltip="{i18n>admin}"
-            type="Transparent"
-            press=".onOpenAdmin" />
-        </contentRight>
-      </Bar>
+      <OverflowToolbar class="favHeader" height="3.5rem">
+        <HBox
+          class="favProfile"
+          alignItems="Center"
+          visible="{= !!${app>/profile/name} }">
+          <Avatar
+            displaySize="S"
+            class="favProfileAvatar"
+            initials="{ path: 'app>/profile/name', formatter: '.formatter.initials' }"
+            src="{app>/profile/avatar}" />
+          <VBox class="favProfileText" justifyContent="Center">
+            <Text text="{app>/profile/name}" class="favProfileName" maxLines="1" />
+            <Text text="{app>/profile/title}" class="favProfileTitle" maxLines="1" />
+          </VBox>
+        </HBox>
+
+        <SearchField
+          id="searchField"
+          width="18rem"
+          placeholder="{i18n>search}"
+          search=".onSearch"
+          liveChange=".onSearch">
+          <layoutData>
+            <OverflowToolbarLayoutData shrinkable="true" minWidth="9rem" maxWidth="18rem" />
+          </layoutData>
+        </SearchField>
+
+        <ToolbarSpacer />
+
+        <core:Icon src="sap-icon://SAP-logo-shape" class="favLogo" />
+        <Title text="{app>/siteTitle}" level="H1" class="favTitle" />
+        <Button
+          icon="sap-icon://settings"
+          tooltip="{i18n>admin}"
+          type="Transparent"
+          press=".onOpenAdmin" />
+      </OverflowToolbar>
     </customHeader>
 
     <IconTabBar

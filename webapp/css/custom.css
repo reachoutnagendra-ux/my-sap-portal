@@ -160,10 +160,59 @@ body,
   white-space: nowrap;
 }
 
+/* Profile block in the viewer header (left side, next to the brand) */
+.favProfile {
+  gap: 0.5rem;
+  margin-right: 0.75rem;
+  padding-right: 0.75rem;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--sapToolbar_SeparatorColor, rgba(255, 255, 255, 0.16));
+}
+.favProfileAvatar {
+  flex: 0 0 auto;
+}
+.favProfileText {
+  line-height: 1.2;
+  min-width: 0;
+  overflow: hidden;
+}
+.favProfileName,
+.favProfileTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.favProfileName {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.favProfileTitle {
+  color: var(--sapContent_LabelColor, #a9b4be);
+  font-size: 0.75rem;
+}
+
+/* Admin profile editor */
+.favProfileEditor {
+  gap: 1rem;
+}
+.favProfileUploadBox {
+  gap: 0.35rem;
+}
+.favHint {
+  color: var(--sapContent_LabelColor, #91a4b7);
+  font-size: 0.75rem;
+}
+
 /* Responsive: 1 column on small screens handled by GridContainer layoutS;
    keep tile text readable */
 @media (max-width: 600px) {
   .favGrid {
     padding: 0.5rem;
+  }
+  /* Drop the name/title text on narrow screens; keep the avatar */
+  .favProfileText {
+    display: none;
   }
 }

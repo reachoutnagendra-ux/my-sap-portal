@@ -4,8 +4,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { query } = require('./db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change-me-to-a-long-random-string';
+const DEFAULT_JWT_SECRET = 'change-me-to-a-long-random-string';
+const JWT_SECRET = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
 const TOKEN_TTL = '12h';
+
+if (process.env.NODE_ENV === 'production' && JWT_SECRET === DEFAULT_JWT_SECRET) {
+  throw new Error('JWT_SECRET must be set to a strong random value in production');
+}
 
 function signToken(payload = {}) {
   return jwt.sign({ ...payload, role: 'admin' }, JWT_SECRET, { expiresIn: TOKEN_TTL });
@@ -33,6 +38,9 @@ async function getAdminPinHash() {
   if (!hash) {
     // Fall back to env PIN on first run if seed has not been run yet.
     const pin = process.env.ADMIN_PIN || '1234';
+    if (process.env.NODE_ENV === 'production' && pin === '1234') {
+      throw new Error('ADMIN_PIN must be set to a non-default value in production');
+    }
     hash = await bcrypt.hash(pin, 10);
     await setSetting('admin_pin_hash', hash);
   }

@@ -39,6 +39,20 @@ sap.ui.define([], function () {
           return "#" + t;
         })
         .join("  ");
+    },
+
+    // Up to two initials from a person's name, for the avatar fallback.
+    initials: function (name) {
+      if (!name) {
+        return "";
+      }
+      var parts = String(name).trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) {
+        return "";
+      }
+      var first = parts[0].charAt(0);
+      var last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+      return (first + last).toUpperCase();
     }
   };
 });

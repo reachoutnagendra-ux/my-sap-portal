@@ -6,7 +6,7 @@ const { query, withTransaction } = require('../db');
 const { requireAuth } = require('../auth');
 
 // GET /api/export — full DB as JSON (public-safe: excludes settings/secrets)
-router.get('/export', async (req, res, next) => {
+router.get('/export', requireAuth, async (req, res, next) => {
   try {
     const [pages, tiles, feeds] = await Promise.all([
       query('SELECT * FROM pages ORDER BY position ASC, id ASC'),

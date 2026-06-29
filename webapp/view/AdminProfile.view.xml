@@ -1,0 +1,58 @@
+<mvc:View
+  controllerName="sap.favorites.controller.AdminProfile"
+  xmlns="sap.m"
+  xmlns:u="sap.ui.unified"
+  xmlns:l="sap.ui.layout.form"
+  xmlns:mvc="sap.ui.core.mvc">
+
+  <VBox class="favAdminProfile sapUiMediumMargin">
+    <l:SimpleForm
+      layout="ResponsiveGridLayout"
+      editable="true"
+      labelSpanXL="3"
+      labelSpanL="3"
+      labelSpanM="4"
+      labelSpanS="12"
+      title="{i18n>profileSectionTitle}">
+
+      <Label text="{i18n>profilePicture}" />
+      <HBox alignItems="Center" class="favProfileEditor">
+        <Avatar
+          displaySize="L"
+          class="favProfileEditAvatar"
+          initials="{ path: 'p>/name', formatter: '.formatter.initials' }"
+          src="{p>/avatar}" />
+        <VBox class="favProfileUploadBox">
+          <u:FileUploader
+            id="avatarUploader"
+            name="avatar"
+            buttonOnly="true"
+            buttonText="{i18n>profileUpload}"
+            iconOnly="false"
+            icon="sap-icon://upload"
+            fileType="png,jpg,jpeg,gif,webp"
+            mimeType="image/png,image/jpeg,image/gif,image/webp"
+            style="Transparent"
+            change=".onPickAvatar" />
+          <Button
+            text="{i18n>profileRemovePicture}"
+            type="Transparent"
+            icon="sap-icon://delete"
+            visible="{= !!${p>/avatar} }"
+            press=".onRemoveAvatar" />
+          <Text class="favHint" text="{i18n>profilePictureHint}" />
+        </VBox>
+      </HBox>
+
+      <Label text="{i18n>profileName}" required="true" />
+      <Input value="{p>/name}" placeholder="{i18n>profileNamePlaceholder}" maxLength="120" />
+
+      <Label text="{i18n>profileTitle}" />
+      <Input value="{p>/title}" placeholder="{i18n>profileTitlePlaceholder}" maxLength="160" />
+    </l:SimpleForm>
+
+    <HBox justifyContent="End" class="sapUiSmallMarginTop">
+      <Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
+    </HBox>
+  </VBox>
+</mvc:View>

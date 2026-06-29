@@ -16,6 +16,9 @@
 
     <IconTabBar id="adminTabs" expandable="false" class="favAdminTabs">
       <items>
+        <IconTabFilter key="profile" text="{i18n>tabProfile}" icon="sap-icon://person-placeholder">
+          <mvc:XMLView viewName="sap.favorites.view.AdminProfile" />
+        </IconTabFilter>
         <IconTabFilter key="pages" text="{i18n>tabPages}" icon="sap-icon://documents">
           <mvc:XMLView viewName="sap.favorites.view.AdminPages" />
         </IconTabFilter>

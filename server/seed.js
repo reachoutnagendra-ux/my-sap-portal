@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
-const { pool, query, withTransaction } = require('./db');
+const { pool, withTransaction } = require('./db');
 
 const PAGES = [
   {

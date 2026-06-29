@@ -88,6 +88,12 @@ sap.ui.define(["sap/ui/model/json/JSONModel"], function (JSONModel) {
     preview: function (url) {
       return request("GET", "/preview?url=" + encodeURIComponent(url));
     },
+    getProfile: function () {
+      return request("GET", "/profile");
+    },
+    saveProfile: function (profile) {
+      return request("PUT", "/profile", profile);
+    },
 
     createJSONModel: function (data) {
       return new JSONModel(data);

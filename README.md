@@ -1,12 +1,31 @@
 # SAP Favorites Portal
 
+> **Tired of drowning in browser bookmarks and doom-scrolling to find the SAP content that actually matters?**
+> This is a self-hosted, Fiori-style launchpad that turns your scattered links into one clean, searchable dashboard you own and control.
+
 A personal favorites portal styled as a **Fiori Launchpad** — a curated, self-maintained
 dashboard of links organized into pages (categories), displayed as Fiori tiles with rich
 previews. Built for SAP professionals who live in SAP Learning Hub, SAP Blogs, SAP Help,
-GitHub, and YouTube.
+GitHub, and YouTube — but it works just as well for any link collection.
 
 **Stack:** OpenUI5 (CDN) · Node.js / Express · PostgreSQL · pluggable AI layer
 **Theme:** `sap_horizon_dark`
+
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)
+
+---
+
+## ✨ Features
+
+- 🧩 **Fiori Launchpad UI** — responsive tile grid, page tabs, `sap_horizon_dark` theme, no build step.
+- 🔎 **Global search** across every page.
+- 🔗 **Smart previews** — paste a URL and auto-fetch the title, image, description, and source type (YouTube / GitHub / SAP Blog / SAP Help / Learning Hub).
+- 👤 **Make it yours** — set your name, role, and profile photo right from the admin UI.
+- 🔐 **Simple admin** — one PIN, JWT-protected write APIs, bcrypt-hashed, login rate-limiting.
+- 🤖 **AI-ready (optional)** — pluggable adapters (OpenAI / Anthropic / Ollama / no-op) for auto-summaries, tagging, and feed scraping. Off by default, zero keys required.
+- 📦 **Import / export** your whole board as JSON.
+- 🐳 **One-command Docker** setup, or run locally against your own Postgres.
 
 ---
 
@@ -15,7 +34,7 @@ GitHub, and YouTube.
 ### Option A — Docker (everything in one command)
 
 ```bash
-cp .env.example .env        # optional: tweak ADMIN_PIN / JWT_SECRET
+cp .env.example .env        # set strong ADMIN_PIN / JWT_SECRET before sharing
 docker compose up --build
 ```
 
@@ -42,6 +61,9 @@ on `localhost:5432` (user/pass/db all `favorites`).
 - **Viewer** (`/`): browse pages as tabs, click a tile to open the link in a new tab,
   use the global search box to filter across all pages.
 - **Admin** (gear icon → `/admin`): log in with the PIN (`ADMIN_PIN`, default `1234`).
+  - **Profile** — set your **name, role/title, and photo** (uploaded inline, stored in the
+    DB). It shows in the header so the portal feels like *yours*. Ships blank, so anyone
+    who clones it personalizes their own.
   - **Pages** — create / rename / reorder / delete, set an icon (SAP icon name or emoji).
   - **Tiles** — paste a URL and hit **Fetch preview** to auto-fill title / image /
     description / type; override anything; reorder; export / import JSON backups.
@@ -59,6 +81,7 @@ on `localhost:5432` (user/pass/db all `favorites`).
 | `DATABASE_URL` | Postgres connection string — the only thing needed to retarget any host |
 | `JWT_SECRET` | Signing secret for admin tokens |
 | `ADMIN_PIN` | Initial admin PIN (hashed into the `settings` table on seed) |
+| `CORS_ORIGIN` | Comma-separated allowed browser origins; empty = same-origin only |
 | `YOUTUBE_API_KEY` / `GITHUB_TOKEN` | Optional, improve preview quality |
 | `AI_ADAPTER` | `noop` (default) · `openai` · `anthropic` · `ollama` |
 | `OPENAI_*` / `ANTHROPIC_*` / `OLLAMA_*` | Per-adapter credentials/models |
@@ -71,15 +94,16 @@ to a real adapter.
 
 ## REST API
 
-All write endpoints require `Authorization: Bearer <jwt>` (obtain via `POST /api/auth/login`).
+All admin-sensitive endpoints require `Authorization: Bearer <jwt>` (obtain via `POST /api/auth/login`).
 
 - Pages: `GET/POST /api/pages`, `PUT/DELETE /api/pages/:id`, `POST /api/pages/reorder`
 - Tiles: `GET /api/tiles`, `GET /api/pages/:id/tiles`, `POST /api/tiles`,
   `PUT/DELETE /api/tiles/:id`, `POST /api/tiles/reorder`
-- Utilities: `GET /api/preview?url=`, `GET /api/export`, `POST /api/import`
+- Utilities: `GET /api/preview?url=`, `GET /api/export` (auth), `POST /api/import`
 - Feeds/AI: `GET/POST /api/feeds`, `PUT/DELETE /api/feeds/:id`,
   `POST /api/feeds/:id/scrape`, `GET /api/suggestions`,
   `PUT /api/suggestions/:id/approve|reject`
+- Profile: `GET /api/profile` (public), `PUT /api/profile` (auth)
 - Auth: `POST /api/auth/login`, `POST /api/auth/change-pin`
 - Health: `GET /api/health`
 
@@ -91,14 +115,17 @@ All write endpoints require `Authorization: Bearer <jwt>` (obtain via `POST /api
 server/                 Express API, services, migrations
   index.js              entry point + static hosting + SPA fallback
   db.js  auth.js  scheduler.js  migrate.js  seed.js  export.js
-  routes/               pages, tiles, preview, feeds, suggestions, auth, importExport
+  routes/               pages, tiles, preview, feeds, suggestions, auth, profile, importExport
   services/
     previewFetcher.js   OG / YouTube / GitHub preview scraping
     feedScraper.js      per-source scraping → suggestions
     ai/aiService.js     provider-agnostic AI interface
     ai/adapters/        noop (default) · openai · anthropic · ollama
-  migrations/           001_initial.sql · 002_ai_tables.sql
+  migrations/           001_initial.sql · 002_ai_tables.sql · 003_suggestion_published.sql
 webapp/                 OpenUI5 frontend (no build step)
+  controller/ view/     Home + Admin (Profile, Pages, Tiles, Feeds, Suggestions)
+  model/ fragment/ css/ i18n/
+SAP_Favorites_Portal_Spec.md   full product/architecture spec (see below)
 ```
 
 ---
@@ -130,4 +157,34 @@ in this mode.
 - Node 20's built-in global `fetch` is used in place of `node-fetch`.
 - The scheduler registers daily (06:00) and weekly (Mon 06:00) scrape jobs; you can also
   scrape any source on demand from the admin UI.
-```
+
+---
+
+## 🏗️ Build your own from the spec
+
+Don't just clone it — **use it as a blueprint.** The complete product and architecture
+spec lives in **[`SAP_Favorites_Portal_Spec.md`](SAP_Favorites_Portal_Spec.md)**: data
+model, REST API, OpenUI5 component map, AI adapter contract, env vars, and a phase-by-phase
+build plan.
+
+Two ways to use it:
+
+1. **Run this app** — follow Quick start above.
+2. **Generate your own** — hand the spec to your AI coding agent (Claude Code, Cursor, etc.)
+   as the source of truth and have it scaffold a fresh implementation, swap the stack, or
+   extend it. The spec is written to be self-contained for exactly this.
+
+> Want a different stack (React + Supabase, Vue + SQLite, etc.)? Keep the spec, change
+> §6 and §8, and rebuild. The data model and API contract are the stable core.
+
+---
+
+## 🤝 Contributing
+
+Issues and PRs welcome. To run locally, see **Option B** above. Please run `npm run lint`
+before opening a PR. Keep the frontend build-free (OpenUI5 from CDN) and the default AI
+adapter `noop` so the app runs with zero external keys out of the box.
+
+## 📄 License
+
+[MIT](LICENSE) — free to use, modify, and distribute. Make it your own.
